@@ -44,7 +44,7 @@ All rendered in a single, readable line.
 ## Example Output
 
 ```bash
-[Claude 3 Opus] 📁 project-dir | ███████░░░ 73% | $0.42 | 145k/200k | ⚡ CACHE IN USE | ⏳ API: 35% | ⏱️ 2m 14s
+[Opus 4.7] 📁 project-dir | ███████░░░ 73% | $0.42 | 145k/200k | ⚡ CACHE IN USE | ⏳ API: 35% | ⏱️ 2m 14s
 ```
 
 ---

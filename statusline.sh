@@ -24,7 +24,7 @@ CACHE_READ=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_inp
 CACHE_CREATE=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
 
 # API limits (your new feature)
-RATE_PCT=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // 0')
+RATE_PCT=$(echo "$input" | jq -r '(.rate_limits.five_hour.used_percentage // 0) | round')
 
 DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
 
