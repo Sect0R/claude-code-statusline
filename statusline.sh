@@ -19,7 +19,7 @@ PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1
 TOTAL_TOKENS=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
 
 # Tokens: count everything that occupies space in the context window
-USED_TOKENS=$(echo "$input" | jq -r '(.context_window.total_input_tokens + .context_window.total_output_tokens) // 0')
+USED_TOKENS=$(( TOTAL_TOKENS * PCT / 100 ))
 CACHE_READ=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
 CACHE_CREATE=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
 
@@ -79,4 +79,4 @@ else
 fi
 
 # Final output string
-echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH | ${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ${USED_DISPLAY}/${TOTAL_DISPLAY} | ${CACHE_INFO} | ⏳ API: ${RATE_COLOR}${RATE_PCT}%${RESET} | ⏱️ ${MINS}m ${SECS}s"
+echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH | Context: ${BAR_COLOR}${BAR}${RESET} ${PCT}% (${USED_DISPLAY}/${TOTAL_DISPLAY}) | ${YELLOW}${COST_FMT}${RESET} | ${CACHE_INFO} | ⏳ API: ${RATE_COLOR}${RATE_PCT}%${RESET} | ⏱️ ${MINS}m ${SECS}s"
