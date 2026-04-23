@@ -11,6 +11,9 @@ input=$(cat)
 
 echo "$input" > ~/claude_debug.json
 
+# Colors
+CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; PURPLE='\033[35m'; RESET='\033[0m'
+
 # Parse data from your JSON
 MODEL=$(echo "$input" | jq -r '.model.display_name')
 DIR=$(echo "$input" | jq -r '.workspace.current_dir')
@@ -25,11 +28,16 @@ CACHE_CREATE=$(echo "$input" | jq -r '.context_window.current_usage.cache_creati
 
 # API limits (your new feature)
 RATE_PCT=$(echo "$input" | jq -r '(.rate_limits.five_hour.used_percentage // 0) | round')
+WEEKLY_PCT=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // 0 | round')
 
 DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
+API_MS=$(echo "$input" | jq -r '.cost.total_api_duration_ms // 0')
+API_MINS=$((API_MS / 60000)); API_SECS=$(((API_MS % 60000) / 1000))
 
-# Colors
-CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; PURPLE='\033[35m'; RESET='\033[0m'
+# Productivity
+ADD_LINES=$(echo "$input" | jq -r '.cost.total_lines_added // 0')
+REM_LINES=$(echo "$input" | jq -r '.cost.total_lines_removed // 0')
+DIFF_INFO="${GREEN}+${ADD_LINES}${RESET} ${RED}-${REM_LINES}${RESET}"
 
 # Context color
 if [ "$PCT" -ge 90 ]; then BAR_COLOR="$RED"
@@ -39,6 +47,10 @@ else BAR_COLOR="$GREEN"; fi
 # API limits color
 if [ "$RATE_PCT" -ge 80 ]; then RATE_COLOR="$RED"
 else RATE_COLOR="$CYAN"; fi
+
+# API limits color
+if [ "$WEEKLY_PCT" -ge 80 ]; then WEEKLY_COLOR="$RED"
+else WEEKLY_COLOR="$CYAN"; fi
 
 # Draw progress bar
 FILLED=$((PCT / 10)); EMPTY=$((10 - FILLED))
@@ -79,4 +91,4 @@ else
 fi
 
 # Final output string
-echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH | Context: ${BAR_COLOR}${BAR}${RESET} ${PCT}% (${USED_DISPLAY}/${TOTAL_DISPLAY}) | ${YELLOW}${COST_FMT}${RESET} | ${CACHE_INFO} | ⏳ API: ${RATE_COLOR}${RATE_PCT}%${RESET} | ⏱️ ${MINS}m ${SECS}s"
+echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH: ${DIFF_INFO} | Context: ${BAR_COLOR}${BAR}${RESET} ${PCT}% (${USED_DISPLAY}/${TOTAL_DISPLAY}) | ${YELLOW}${COST_FMT}${RESET} | ${CACHE_INFO} | ⏳ 5h:${RATE_COLOR}${RATE_PCT}%${RESET} 📅 7d:${WEEKLY_COLOR}${WEEKLY_PCT}%${RESET} | ⏱️  ${MINS}m ${SECS}s | ⌛ API Wait: ${API_MINS}m"
