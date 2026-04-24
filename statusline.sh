@@ -45,12 +45,20 @@ elif [ "$PCT" -ge 70 ]; then BAR_COLOR="$YELLOW"
 else BAR_COLOR="$GREEN"; fi
 
 # API limits color
-if [ "$RATE_PCT" -ge 80 ]; then RATE_COLOR="$RED"
-else RATE_COLOR="$CYAN"; fi
-
+if [ "$RATE_PCT" -ge 80 ]; then 
+    RATE_COLOR="$RED"
+elif [ "$RATE_PCT" -ge 50 ]; then 
+    RATE_COLOR="$YELLOW"
+else 
+    RATE_COLOR="$CYAN"; fi
+    
 # API limits color
-if [ "$WEEKLY_PCT" -ge 80 ]; then WEEKLY_COLOR="$RED"
-else WEEKLY_COLOR="$CYAN"; fi
+if [ "$WEEKLY_PCT" -ge 80 ]; then 
+    WEEKLY_COLOR="$RED"
+elif [ "$WEEKLY_PCT" -ge 50 ]; then 
+    WEEKLY_COLOR="$YELLOW"
+else 
+    WEEKLY_COLOR="$CYAN"; fi
 
 # Draw progress bar
 FILLED=$((PCT / 10)); EMPTY=$((10 - FILLED))
