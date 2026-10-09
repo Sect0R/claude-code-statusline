@@ -41,6 +41,7 @@ All rendered in a single, readable line.
 - **Dual rate-limit tracking**:
   - ⏳ 5-hour window
   - 📅 7-day window
+  - time left until each limit resets, e.g. `5h:3% (2h15m)`
 - **Timing metrics**: total session duration and cumulative API wait time
 - **Git branch detection** with 🛠️ marker
 - **Adaptive color coding** for context usage and rate limits (green / yellow / red)

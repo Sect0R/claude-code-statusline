@@ -29,6 +29,20 @@ CACHE_CREATE=$(echo "$input" | jq -r '.context_window.current_usage.cache_creati
 # API limits (your new feature)
 RATE_PCT=$(echo "$input" | jq -r '(.rate_limits.five_hour.used_percentage // 0) | round')
 WEEKLY_PCT=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // 0 | round')
+RATE_RESET_AT=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // 0')
+WEEKLY_RESET_AT=$(echo "$input" | jq -r '.rate_limits.seven_day.resets_at // 0')
+
+# Time left until limit reset: "2h15m", "3d4h", "12m"
+format_reset() {
+    local left=$(( $1 - $(date +%s) ))
+    [ "$1" -le 0 ] || [ "$left" -le 0 ] && return
+    local d=$((left / 86400)) h=$(((left % 86400) / 3600)) m=$(((left % 3600) / 60))
+    if [ "$d" -gt 0 ]; then echo " (${d}d${h}h)"
+    elif [ "$h" -gt 0 ]; then echo " (${h}h${m}m)"
+    else echo " (${m}m)"; fi
+}
+RATE_RESET=$(format_reset "$RATE_RESET_AT")
+WEEKLY_RESET=$(format_reset "$WEEKLY_RESET_AT")
 
 DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
 API_MS=$(echo "$input" | jq -r '.cost.total_api_duration_ms // 0')
@@ -99,4 +113,4 @@ else
 fi
 
 # Final output string
-echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH: ${DIFF_INFO} | Context: ${BAR_COLOR}${BAR}${RESET} ${PCT}% (${USED_DISPLAY}/${TOTAL_DISPLAY}) | ${YELLOW}${COST_FMT}${RESET} | ${CACHE_INFO} | ⏳ 5h:${RATE_COLOR}${RATE_PCT}%${RESET} 📅 7d:${WEEKLY_COLOR}${WEEKLY_PCT}%${RESET} | ⏱️  ${MINS}m ${SECS}s | ⌛ API Wait: ${API_MINS}m"
+echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH: ${DIFF_INFO} | Context: ${BAR_COLOR}${BAR}${RESET} ${PCT}% (${USED_DISPLAY}/${TOTAL_DISPLAY}) | ${YELLOW}${COST_FMT}${RESET} | ${CACHE_INFO} | ⏳ 5h:${RATE_COLOR}${RATE_PCT}%${RESET}${RATE_RESET} 📅 7d:${WEEKLY_COLOR}${WEEKLY_PCT}%${RESET}${WEEKLY_RESET} | ⏱️  ${MINS}m ${SECS}s | ⌛ API Wait: ${API_MINS}m"
